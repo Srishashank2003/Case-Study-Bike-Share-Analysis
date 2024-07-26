@@ -1,0 +1,192 @@
+---
+title: "Case Study R Markdown"
+author: "SSD"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Cyclistic Bike-Share Analysis Case Study
+
+This is Cyclistic bike-share analysis Case Study! In this project, there is a fictional company, Cyclistic and to navigate there speedy success, analysis is done using their Bike-Share data. This analysis follows the six steps of the data analysis process: Ask, Prepare, Process, Analyze, Share, and Act.
+
+## Table of Contents
+
+- [Introduction](#introduction)
+- [Data Analysis Process](#data-analysis-process)
+  - Ask
+  - Prepare
+  - Process
+  - Analyze
+  - Share
+  - Act
+- [Results](#results)
+- [Conclusion](#conclusion)
+
+## Introduction
+
+This case study analyzes Cyclistic's bike-share data to uncover insights that can help the company improve its services and attract more users. The data analysis aims to understand trends, user behavior, and preferences.
+
+## Data Analysis Process
+
+### Ask
+
+**Key Questions:**
+
+- How do annual members and casual riders use Cyclistic bikes differently?
+- Why would casual riders buy Cyclistic annual memberships?
+- When will the demand for memberships increase?
+- Who will use bikes more often and for what purpose?
+
+### Prepare
+
+The dataset includes bike trip data for the period from August 2023 to July 2024. The data is stored in multiple CSV files, one for each month. All these files are combined to a single dataset `data_total`.
+
+- **Data Source:** The datasets have a different name because Cyclistic is a fictional company. The data has been made available by Motivate International Inc. under this [license](https://divvybikes.com/data-license-agreement).
+
+### Process
+
+The data is cleaned and transformed to remove unnecessary columns and handle missing values. The datasets are merged into a single dataframe for analysis.
+
+### Analyze
+
+Data analysis is performed using various techniques, including aggregation and visualization, to identify patterns and trends.
+
+### Share
+
+Visualizations and summaries of key insights are created and shared to communicate findings effectively.
+
+### Act
+
+Based on the analysis, actionable recommendations are provided to help Cyclistic improve its services and marketing strategies.
+
+## Code
+
+```{r libraries}
+library(tidyverse)
+library(janitor)
+library(ggplot2)
+library(lubridate)
+library(dplyr)
+```
+
+### Load data
+
+```{r data}
+aug23 <- read.csv("D:/Money/Google Data Analytics/Case Study 1/Datasets/aug23.csv")
+oct23 <- read.csv("D:/Money/Google Data Analytics/Case Study 1/Datasets/oct23.csv")
+nov23 <- read.csv("D:/Money/Google Data Analytics/Case Study 1/Datasets/nov23.csv")
+dec23 <- read.csv("D:/Money/Google Data Analytics/Case Study 1/Datasets/dec23.csv")
+jan24 <- read.csv("D:/Money/Google Data Analytics/Case Study 1/Datasets/jan24.csv")
+feb24 <- read.csv("D:/Money/Google Data Analytics/Case Study 1/Datasets/feb24.csv")
+mar24 <- read.csv("D:/Money/Google Data Analytics/Case Study 1/Datasets/mar24.csv")
+apr24 <- read.csv("D:/Money/Google Data Analytics/Case Study 1/Datasets/apr24.csv")
+may24 <- read.csv("D:/Money/Google Data Analytics/Case Study 1/Datasets/may24.csv")
+jun24 <- read.csv("D:/Money/Google Data Analytics/Case Study 1/Datasets/jun24.csv")
+jul24 <- read.csv("D:/Money/Google Data Analytics/Case Study 1/Datasets/july24.csv")
+```
+
+### Combine data into one dataframe
+
+```{r combine}
+data_total <- rbind(aug23, oct23, nov23, dec23, jan24, feb24, mar24, apr24, may24, jun24, jul24)
+rm(aug23, oct23, nov23, dec23, jan24, feb24, mar24, apr24, may24, jun24, jul24)
+```
+
+### Data cleaning
+
+```{r cleaning}
+data_total <- select(data_total, -c(start_lat, start_lng, end_lat, end_lng, start_station_id, end_station_id, end_station_name))
+```
+
+### Data transformation
+
+```{r transformation}
+data_total$date <- as.Date(data_total$started_at)
+data_total$month <- format(as.Date(data_total$date), "%m")
+data_total$day_of_week <- format(as.Date(data_total$date), "%A")
+data_total$ride_length <- (as.double(difftime(data_total$ended_at, data_total$started_at)))/60
+data_total$ride_length <- as.numeric(as.character(data_total$ride_length))
+```
+
+### Summary statistics
+
+```{r summary}
+summary(data_total$ride_length)
+aggregate(data_total$ride_length ~ data_total$member_casual, FUN = mean)
+aggregate(data_total$ride_length ~ data_total$member_casual, FUN = median)
+aggregate(data_total$ride_length ~ data_total$member_casual, FUN = max)
+aggregate(data_total$ride_length ~ data_total$member_casual, FUN = min)
+```
+
+### Visualization: Rides per Day of Week
+
+```{r week}
+data_total$day_of_week <- ordered(data_total$day_of_week, levels = c("Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"))
+data_total %>%
+  group_by(member_casual, day_of_week) %>% 
+  summarise(number_of_rides = n()) %>% 
+  arrange(member_casual, day_of_week) %>%
+  ggplot(aes(x = day_of_week, y = number_of_rides, fill = member_casual)) + 
+  geom_col(position = "dodge", color = "black") + 
+  theme_minimal() +
+  labs(x = 'Day of Week', y = 'Total Number of Rides', title = 'Rides per Day of Week', fill = 'Type of Membership') + 
+  scale_y_continuous(breaks = c(100000, 250000, 400000, 550000), labels = c("100k", "250K", "400K", "550K"))
+```
+
+### Visualization: Rides per Month
+
+```{r month}
+data_total %>%
+  group_by(member_casual, month) %>%  
+  summarise(total_rides = n(), `average_duration_(mins)` = mean(ride_length)) %>% 
+  arrange(member_casual) %>% 
+  ggplot(aes(x = month, y = total_rides, fill = member_casual)) + 
+  geom_col(position = "dodge", color = "black") + 
+  theme_minimal() +
+  labs(x = "Month", y = "Total Number of Rides", title = "Rides per Month", fill = "Type of Membership") + 
+  scale_y_continuous(breaks = c(100000, 200000, 300000, 400000, 500000, 600000, 700000, 800000), 
+                     labels = c("100K", "200K", "300K", "400K", "500K", "600K", "700K", "800K")) + 
+  theme(axis.text.x = element_text(angle = 45))
+```
+
+### Visualization: Bike Popularity among Member Types
+
+```{r member}
+data_total %>%
+  ggplot(aes(x = rideable_type, fill = member_casual)) +
+  geom_bar(position = "dodge", color = "black") + 
+  theme_minimal() + 
+  labs(x = "Type of Bikes", y = "Number of Bikes Taken", title = 'Bike Popularity among Member Types', fill = 'Type of Membership') +
+  scale_y_continuous(breaks = c(500000, 1000000, 1500000), labels = c("500K", "1M", "1.5M"))
+```
+
+### Summary: Rides by Member Type and Day of Week
+
+```{r summary_avg}
+data_total %>%
+  group_by(member_casual, day_of_week) %>%
+  summarise(number_of_rides = n(), average_duration = mean(ride_length)) %>%
+  arrange(member_casual, day_of_week) %>%
+  ggplot(aes(x = day_of_week, y = average_duration, fill = member_casual)) +
+  geom_col(position = "dodge", color = "black") + 
+  theme_minimal() +
+  labs(x = 'Days of the week', y = 'Average duration - Hrs', title = 'Average ride time per week', fill = 'Type of Membership')
+```
+
+
+## Results
+- **Rides per Day of Week:** Visualized the total number of rides per day of the week, broken down by membership type.
+
+- **Rides per Month:** Analyzed the total number of rides and average ride duration per month, segmented by membership type.
+
+- **Bike Popularity among Member Types:** Examined the popularity of different bike types among casual and member riders.
+
+- **Rides by Member Type and Day of Week:** Summarized the number of rides and average ride duration by membership type and day of the week.
+
+## Conclusion
+
+The analysis provided insights into how different user groups interact with the Cyclistic bike-share service. These findings can help Cyclistic tailor its marketing strategies to convert casual riders into annual members and optimize its services for better user satisfaction.
