@@ -76,17 +76,17 @@ library(dplyr)
 ### Load data
 
 ```{r data}
-aug23 <- read.csv("D:/Money/Google Data Analytics/Case Study 1/Datasets/aug23.csv")
-oct23 <- read.csv("D:/Money/Google Data Analytics/Case Study 1/Datasets/oct23.csv")
-nov23 <- read.csv("D:/Money/Google Data Analytics/Case Study 1/Datasets/nov23.csv")
-dec23 <- read.csv("D:/Money/Google Data Analytics/Case Study 1/Datasets/dec23.csv")
-jan24 <- read.csv("D:/Money/Google Data Analytics/Case Study 1/Datasets/jan24.csv")
-feb24 <- read.csv("D:/Money/Google Data Analytics/Case Study 1/Datasets/feb24.csv")
-mar24 <- read.csv("D:/Money/Google Data Analytics/Case Study 1/Datasets/mar24.csv")
-apr24 <- read.csv("D:/Money/Google Data Analytics/Case Study 1/Datasets/apr24.csv")
-may24 <- read.csv("D:/Money/Google Data Analytics/Case Study 1/Datasets/may24.csv")
-jun24 <- read.csv("D:/Money/Google Data Analytics/Case Study 1/Datasets/jun24.csv")
-jul24 <- read.csv("D:/Money/Google Data Analytics/Case Study 1/Datasets/july24.csv")
+aug23 <- read.csv("../Datasets/aug23.csv")
+oct23 <- read.csv("../Datasets/oct23.csv")
+nov23 <- read.csv("../Datasets/nov23.csv")
+dec23 <- read.csv("../Datasets/dec23.csv")
+jan24 <- read.csv("../Datasets/jan24.csv")
+feb24 <- read.csv("../Datasets/feb24.csv")
+mar24 <- read.csv("../Datasets/mar24.csv")
+apr24 <- read.csv("../Datasets/apr24.csv")
+may24 <- read.csv("../Datasets/may24.csv")
+jun24 <- read.csv("../Datasets/jun24.csv")
+jul24 <- read.csv("../Datasets/jul24.csv")
 ```
 
 ### Combine data into one dataframe
